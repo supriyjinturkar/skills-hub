@@ -1,0 +1,20 @@
+{
+  "skills": {
+    "news-summary": {
+      "versions": {
+        "1.0.0": {
+          "url": "https://github.com/supriyjinturkar/skills-hub/archive/refs/tags/news-summary-1.0.0.zip"
+        }
+      },
+      "latest": "1.0.0"
+    },
+    "weather": {
+      "versions": {
+        "1.0.0": {
+          "url": "https://github.com/supriyjinturkar/skills-hub/archive/refs/tags/weather-1.0.0.zip"
+        }
+      },
+      "latest": "1.0.0"
+    }
+  }
+}
