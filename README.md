@@ -9,7 +9,7 @@ Team members across the company can browse the repository, find a skill that fit
 
 Because skills are consumed independently, every skill must be:
 - **self-contained** — all code and references live inside the skill directory
-- **versioned** — each skill carries its own semantic version (see [Versioning Standards Guide](versioning.md))
+- **versioned** — each skill carries its own semantic version (see [Skill Versioning And Branch Model](docs/CONTRIBUTING.md#skill-versioning-and-branch-model))
 - **tested** — every skill has a corresponding test suite under the top-level `tests/` directory (see [Testing Requirements](docs/TESTING.md))
 
 > **Note:** For Creating skills (see [Contributing Guidelines](docs/CONTRIBUTING.md))
@@ -356,4 +356,4 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full contribution workflow a
 
 ## Related Documentation
 
-- [Versioning Standards Guide](versioning.md)
+- [Skill Versioning And Branch Model](docs/CONTRIBUTING.md#skill-versioning-and-branch-model)

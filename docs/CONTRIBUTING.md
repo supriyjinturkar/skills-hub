@@ -6,7 +6,40 @@ Follow these steps when contributing a new skill or updating an existing one.
 
 1. Check the centralized skills repository to make sure a similar skill does not already exist.
 2. If a related skill exists, consider extending it with a new version instead of creating a duplicate.
-3. Read the [Versioning Standards Guide](versioning.md) to understand the branch model.
+3. Read the [Skill Versioning And Branch Model](#skill-versioning-and-branch-model) to understand the branch model.
+
+## Skill Versioning And Branch Model
+
+This repository follows a branch-based versioning model for skills. It keeps each skill isolated while still maintaining a single shared repo.
+
+### Branch Roles
+
+- `develop`
+  - Main working branch with the latest approved state of all skills.
+- `empty`
+  - An empty baseline branch used only to start a brand-new skill from scratch.
+- `<skill-name>`
+  - The long-lived branch for one skill (example: `pdf-processing`).
+- `<skill-name>-<version>`
+  - Temporary release branch for a new version (example: `pdf-processing-1.1.0`).
+
+### Naming Rules
+
+- Skill branches must use lowercase kebab-case.
+- Version branches must include the skill name (avoid version-only branches like `1.1.0`).
+
+### Source Of Truth
+
+- The skill version lives in `metadata.version` in `SKILL.md`.
+- Branch names, `metadata.version`, and release tags must stay aligned.
+
+
+### Required Rules
+
+- Never create a new skill directly from `develop` if a clean start is required.
+- Always create new skills from `empty`.
+- Always create version branches from the skill branch.
+- Always bump `metadata.version` for meaningful changes.
 
 ## Creating A New Skill
 
@@ -44,7 +77,7 @@ Reviewers will verify:
 - [ ] Scripts and references are placed in correct subdirectories
 - [ ] No large unrelated files are included
 - [ ] The skill body clearly explains purpose, inputs, steps, and expected output
-- [ ] The correct branch model was followed (see [Versioning Standards Guide](versioning.md))
+- [ ] The correct branch model was followed (see [Skill Versioning And Branch Model](#skill-versioning-and-branch-model))
 
 ## Author Checklist
 
@@ -76,7 +109,3 @@ tests/pdf-processing/
 |-- test_extract_text.py
 `-- test_validate_output.py
 ```
-
-## Related Documentation
-
-- [Versioning Standards Guide](versioning.md)
