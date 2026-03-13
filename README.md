@@ -10,7 +10,7 @@ Team members across the company can browse the repository, find a skill that fit
 Because skills are consumed independently, every skill must be:
 - **self-contained** — all code and references live inside the skill directory
 - **versioned** — each skill carries its own semantic version (see [Versioning Standards Guide](versioning.md))
-- **tested** — every skill has a corresponding test suite under the top-level `tests/` directory (see [Testing Requirements](#testing-requirements) below)
+- **tested** — every skill has a corresponding test suite under the top-level `tests/` directory (see [Testing Requirements](docs/TESTING.md))
 
 ## Skill Location
 
@@ -26,7 +26,7 @@ Minimum required file:
 skills/<skill-name>/SKILL.md
 ```
 
-Corresponding test directory (mandatory — see [Testing Requirements](#testing-requirements)):
+Corresponding test directory (mandatory -- see [Testing Requirements](docs/TESTING.md)):
 
 ```text
 tests/<skill-name>/
@@ -344,219 +344,13 @@ Workflow 3 ensures `develop` stays up to date after every release.
 
 > **Note:** These workflows are planned and will be implemented as GitHub Actions in the repository. Until then, the maintainer performs these steps manually.
 
-## Testing Requirements
+## Testing
 
-Every skill **must** have a corresponding test directory under the top-level `tests/` folder.
-A skill that does not meet the testing requirements will not be approved for merge.
-
-### Rules
-
-1. A `tests/<skill-name>/` directory must exist at the repository root, matching the skill's directory name.
-2. All tests must **pass** before a PR can be approved.
-3. Test coverage for the skill must be at least **75 %** (line coverage).
-4. Coverage is measured only over the skill's own code (`scripts/`, helper modules, etc.) — not third-party libraries.
-
-### Test Directory Layout
-
-```text
-skills/<skill-name>/
-|-- SKILL.md
-|-- scripts/
-|   |-- extract_text.py
-|   `-- validate_output.py
-`-- references/
-
-tests/<skill-name>/
-|-- __init__.py                # may be empty
-|-- conftest.py                # shared fixtures (optional)
-|-- test_extract_text.py       # unit tests for extract_text.py
-|-- test_validate_output.py
-`-- test_integration.py        # end-to-end / integration tests (optional)
-```
-
-### What To Test
-
-Skill tests should cover the following areas:
-
-#### 1. Unit Tests (required)
-
-Test individual functions, classes, and helpers in isolation.
-
-- Every file under `scripts/` should have a corresponding `test_<filename>.py`.
-- Mock external dependencies (APIs, file systems, databases) so tests run offline and fast.
-- Cover both the happy path and meaningful error / edge cases.
-
-Example (`tests/<skill-name>/test_extract_text.py`):
-
-```python
-import pytest
-from scripts.extract_text import extract_pages
-
-def test_extract_pages_returns_list():
-    result = extract_pages("tests/fixtures/sample.pdf")
-    assert isinstance(result, list)
-    assert len(result) > 0
-
-def test_extract_pages_empty_pdf():
-    result = extract_pages("tests/fixtures/empty.pdf")
-    assert result == []
-
-def test_extract_pages_invalid_path():
-    with pytest.raises(FileNotFoundError):
-        extract_pages("does_not_exist.pdf")
-```
-
-#### 2. Script Tests (required when scripts are present)
-
-If a skill contains runnable scripts, test that each script:
-- exits with code `0` on valid input
-- exits with a non-zero code and a clear error message on invalid input
-- produces the expected output or side effects
-
-Example (`tests/<skill-name>/test_validate_output.py`):
-
-```python
-import subprocess, sys
-
-def test_validate_output_script_success():
-    result = subprocess.run(
-        [sys.executable, "scripts/validate_output.py", "--input", "tests/fixtures/valid.json"],
-        capture_output=True, text=True,
-    )
-    assert result.returncode == 0
-
-def test_validate_output_script_failure():
-    result = subprocess.run(
-        [sys.executable, "scripts/validate_output.py", "--input", "tests/fixtures/bad.json"],
-        capture_output=True, text=True,
-    )
-    assert result.returncode != 0
-    assert "error" in result.stderr.lower()
-```
-
-#### 3. Integration Tests (recommended)
-
-If the skill orchestrates multiple scripts or calls external services, add integration tests that run the full flow end-to-end.
-Mark these clearly so they can be run or skipped independently:
-
-```python
-import pytest
-
-@pytest.mark.integration
-def test_full_pdf_pipeline():
-    # run extract -> validate -> output
-    ...
-```
-
-### Running Tests
-
-From the repository root, run tests for a specific skill:
-
-```bash
-# Run all tests for a skill
-pytest tests/<skill-name>/
-
-# Run with coverage report (measure coverage over the skill's scripts)
-pytest tests/<skill-name>/ --cov=skills/<skill-name>/scripts --cov-report=term-missing
-
-# Fail if coverage is below 75 %
-pytest tests/<skill-name>/ --cov=skills/<skill-name>/scripts --cov-fail-under=75
-```
-
-If the skill contains additional source directories beyond `scripts/`, include them in the `--cov` flag:
-
-```bash
-pytest tests/<skill-name>/ --cov=skills/<skill-name>/scripts --cov=skills/<skill-name>/helpers --cov-fail-under=75
-```
-
-### CI Enforcement
-
-The repository CI pipeline (via the GitHub Actions workflows described in [CI / Automation Workflows](#ci--automation-workflows)) will:
-1. Detect which skills were changed in the PR.
-2. Run `pytest tests/<skill-name>/ --cov=skills/<skill-name>/scripts --cov-fail-under=75` for each changed skill.
-3. Block the merge if any test fails or coverage drops below 75 %.
-4. On successful merge, automatically create the release tag and update `registry.json`.
-
-Contributors should run the same command locally before pushing.
+See [Testing Requirements](docs/TESTING.md) for rules, coverage expectations, and command examples.
 
 ## Contribution Guidelines
 
-Follow these steps when contributing a new skill or updating an existing one.
-
-### Before You Start
-
-1. Check the centralized skills repository to make sure a similar skill does not already exist.
-2. If a related skill exists, consider extending it with a new version instead of creating a duplicate.
-3. Read the [Versioning Standards Guide](versioning.md) to understand the branch model.
-
-### Creating A New Skill
-
-1. Create a branch from `empty` named after your skill (e.g. `pdf-processing`).
-2. Add your skill directory under `skills/<skill-name>/`.
-3. Include at minimum:
-   - `SKILL.md` with valid frontmatter (`name`, `description`, `metadata.author`, `metadata.version`).
-   - A corresponding `tests/<skill-name>/` directory with tests that pass and meet the 75 % coverage threshold.
-4. If the skill has runnable code, place it under `scripts/`.
-5. If the skill has supporting documents, place them under `references/`.
-6. Run `pytest tests/<skill-name>/ --cov=skills/<skill-name>/scripts --cov-fail-under=75` locally and confirm everything passes.
-7. Open a PR from your skill branch into `develop`.
-8. Address code-review feedback.
-9. After approval and merge, the CI workflow automatically creates the release tag (e.g. `pdf-processing-1.0.0`) and updates `registry.json`.
-
-### Updating An Existing Skill
-
-1. Create a version branch from the existing skill branch (e.g. `pdf-processing-1.1.0`).
-2. Make your changes.
-3. Bump `metadata.version` in `SKILL.md`.
-4. Add or update tests under `tests/<skill-name>/` to cover any new or changed functionality — coverage must stay at or above 75 %.
-5. Run `pytest tests/<skill-name>/ --cov=skills/<skill-name>/scripts --cov-fail-under=75` locally.
-6. Open a PR from the version branch into the skill branch.
-7. After approval and merge into the skill branch, the CI workflow automatically creates the release tag (e.g. `pdf-processing-1.1.0`) and updates `registry.json`.
-8. A separate CI workflow then syncs the released changes into `develop`.
-
-### PR Review Checklist
-
-Reviewers will verify:
-- [ ] `SKILL.md` frontmatter is valid and version is bumped correctly
-- [ ] Skill directory name matches `name` in frontmatter
-- [ ] `tests/<skill-name>/` directory exists with meaningful tests
-- [ ] All tests pass
-- [ ] Coverage is ≥ 75 %
-- [ ] Scripts and references are placed in correct subdirectories
-- [ ] No large unrelated files are included
-- [ ] The skill body clearly explains purpose, inputs, steps, and expected output
-- [ ] The correct branch model was followed (see [Versioning Standards Guide](versioning.md))
-
-## Author Checklist
-
-Before adding or updating a skill, verify:
-- directory name is correct and in kebab-case
-- `SKILL.md` exists with valid YAML frontmatter
-- `name` in frontmatter matches directory name
-- `metadata.version` is set and bumped correctly
-- `description` clearly says when to use the skill
-- `tests/<skill-name>/` directory exists with passing tests and ≥ 75 % coverage
-- scripts and references are placed in the correct subdirectories
-- the skill body explains expected inputs, steps, and outputs
-- the correct branch model was followed
-
-## Example Layout
-
-```text
-skills/pdf-processing/
-|-- SKILL.md
-|-- scripts/
-|   |-- extract_text.py
-|   `-- validate_output.py
-`-- references/
-    `-- form-field-notes.md
-
-tests/pdf-processing/
-|-- __init__.py
-|-- conftest.py
-|-- test_extract_text.py
-`-- test_validate_output.py
-```
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full contribution workflow and checklists.
 
 ## Related Documentation
 
