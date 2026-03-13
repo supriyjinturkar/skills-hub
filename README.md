@@ -12,9 +12,11 @@ Because skills are consumed independently, every skill must be:
 - **versioned** — each skill carries its own semantic version (see [Versioning Standards Guide](versioning.md))
 - **tested** — every skill has a corresponding test suite under the top-level `tests/` directory (see [Testing Requirements](docs/TESTING.md))
 
-## Skill Location
+> **Note:** For Creating skills (see [Contributing Guidelines](docs/CONTRIBUTING.md))
 
-Put each new skill in:
+## Skill
+
+Each new skill should be a folder within skills folder:
 
 ```text
 skills/<skill-name>/
