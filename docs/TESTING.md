@@ -88,20 +88,6 @@ def test_validate_output_script_failure():
     assert "error" in result.stderr.lower()
 ```
 
-### 3. Integration Tests (recommended)
-
-If the skill orchestrates multiple scripts or calls external services, add integration tests that run the full flow end-to-end.
-Mark these clearly so they can be run or skipped independently:
-
-```python
-import pytest
-
-@pytest.mark.integration
-def test_full_pdf_pipeline():
-    # run extract -> validate -> output
-    ...
-```
-
 ## Running Tests
 
 From the repository root, run tests for a specific skill:
